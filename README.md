@@ -16,12 +16,11 @@
 7. [Deployment](#deployment)
 8. [Error Handling](#error-handling)
 9. [Security](#security)
-10. [Testing](#testing)
-11. [Future Enhancements](#future-enhancements)
+10. [Future Enhancements](#future-enhancements)
 
 ## Project Overview
 
-The Joint Savings Platform is a microservices-based application that enables users to create and participate in various types of savings groups with customizable payout structures. The system supports:
+Moniejoint is a microservices-based application that enables users to create and participate in various types of savings groups with customizable payout structures. The system supports:
 
 - **Rotating Savings (Ajo/Esusu)**: Members contribute regularly and receive payouts in a defined order
 - **Fixed Deposit**: Members contribute to a common pool that earns interest
@@ -50,13 +49,7 @@ Key functionalities include:
 
 ### Communication Flow
 
-```
-Client → API Gateway → [Auth Service | User Service | Wallet Service | Saving Group Service]
-                                      ↑               ↑
-                                      │               │
-                                      ↓               ↓
-                                Config Server ← Eureka Server
-```
+![Image](https://github.com/user-attachments/assets/65e7ee28-bcad-4c5e-ba49-6c80589b2a1d)
 
 Services communicate via:
 - Synchronous REST calls (for immediate operations)
@@ -534,15 +527,6 @@ Custom exceptions are defined for domain-specific errors:
 - HTTPS for all communications
 - Input validation
 - Rate limiting (to be implemented)
-
-## Testing
-
-The system should be tested with:
-- Unit tests for all service methods
-- Integration tests for API endpoints
-- End-to-end tests for complete workflows
-- Load testing for performance evaluation
-- Security testing for vulnerabilities
 
 ## Future Enhancements
 
