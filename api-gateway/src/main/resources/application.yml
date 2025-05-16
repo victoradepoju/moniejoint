@@ -1,0 +1,71 @@
+server:
+  port: 8003
+
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # Disable since explicit routes are being defined
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/v1/user/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                securedEndpoints: /v1/auth/login,/v1/auth/register,/eureka,/v1/user/save,/v1/user/getUserByUsername
+
+        - id: wallet-service
+          uri: lb://wallet-service
+          predicates:
+            - Path=/v1/wallets/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                securedEndpoints: /v1/wallets,/eureka
+
+        - id: saving-group-service
+          uri: lb://saving-group-service
+          predicates:
+            - Path=/v1/groups/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                securedEndpoints: /eureka
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/v1/notification/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                securedEndpoints: /v1/auth/login,/v1/auth/register,/eureka
+
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/v1/auth/**
+
+        - id: file-storage
+          uri: lb://file-storage
+          predicates:
+            - Path=/v1/file-storage/**
+          filters:
+            - name: JwtAuthenticationFilter
+              args:
+                securedEndpoints: /v1/auth/login,/v1/auth/register,/eureka
+      httpclient:
+        connect-timeout: 60000
+        response-timeout: 60s
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8002/eureka/
+    fetch-registry: true
+    register-with-eureka: true

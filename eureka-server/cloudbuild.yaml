@@ -1,0 +1,48 @@
+steps:
+  # Maven build
+  - name: 'maven:3.9.6-eclipse-temurin-21'
+    args: ['mvn', 'clean', 'package', '-DskipTests']
+
+  # Build Eureka Server image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/eureka-server:${SHORT_SHA}'
+      - '-f'
+      - 'eureka-server/Dockerfile'
+      - '.'
+    id: 'BUILD'
+
+  # Push image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/eureka-server:${SHORT_SHA}'
+    id: 'PUSH'
+
+  # Deploy to Kubernetes
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8s/eureka-server/']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=moniejoint-cluster'
+    id: 'DEPLOY'
+
+  # Update deployment with the new image
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'set'
+      - 'image'
+      - 'deployment/config-server'
+      - 'config-server=us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/eureka-server:${SHORT_SHA}'
+      - '--namespace=moniejoint-ns'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=moniejoint-cluster'
+      -
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/eureka-server:${SHORT_SHA}'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

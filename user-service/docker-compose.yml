@@ -1,0 +1,23 @@
+services:
+  postgres:
+    container_name: ms
+    image: postgres
+    environment:
+      POSTGRES_USER: victor
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: ms
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - ms
+    restart: unless-stopped
+
+networks:
+    ms:
+      driver: bridge
+volumes:
+    postgres:
+      driver: local

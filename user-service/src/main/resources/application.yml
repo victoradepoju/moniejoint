@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: user-service
+
+  config:
+    import: configserver:http://localhost:8001/
+  profiles:
+    active: dev
+
+application:
+  title: User Service

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: auth-service
+
+  config:
+    import: optional:configserver:http://localhost:8001/
+
+application:
+  title: Auth Service
+server:
+  port: 8004

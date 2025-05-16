@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: file-storage
+
+  config:
+    import: configserver:http://localhost:8001/
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

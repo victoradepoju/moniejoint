@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server
+  namespace: moniejoint-ns
+  labels:
+    app: eureka-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: eureka-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+        - name: eureka-server
+          image: us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/eureka-server:${SHORT_SHA}
+          ports:
+            - containerPort: 8002
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server.moniejoint-ns.svc.cluster.local:8002/eureka/"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "eureka-server.moniejoint-ns.svc.cluster.local"
+            - name: SERVER_PORT
+              value: "8002"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8002
+            initialDelaySeconds: 45
+            periodSeconds: 15

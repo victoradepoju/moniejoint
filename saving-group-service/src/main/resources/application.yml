@@ -1,0 +1,11 @@
+server:
+  port: 8008
+
+spring:
+  application:
+    name: saving-group-service
+  config:
+    import: configserver:http://localhost:8001/
+
+application:
+  title: User Service

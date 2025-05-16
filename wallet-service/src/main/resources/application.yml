@@ -1,0 +1,11 @@
+server:
+  port: 8007
+
+spring:
+  application:
+    name: wallet-service
+  config:
+    import: configserver:http://localhost:8001/
+
+application:
+  title: Wallet Service

@@ -1,0 +1,49 @@
+steps:
+  # Maven build
+  - name: 'maven:3.9.6-eclipse-temurin-21'
+    args: ['mvn', 'clean', 'package', '-DskipTests']
+
+  # Docker build and push
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/config-server:${SHORT_SHA}'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/config-server:${SHORT_SHA}'
+
+  # Kubernetes setup (namespace and configs)
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8s/config-server/namespace.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=moniejoint-cluster'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8s/config-server/']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=moniejoint-cluster'
+
+  # Update deployment with the new image
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'set'
+      - 'image'
+      - 'deployment/config-server'
+      - 'config-server=us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/config-server:${SHORT_SHA}'
+      - '--namespace=moniejoint-ns'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=moniejoint-cluster'
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/moniejoint-repo/config-server:${SHORT_SHA}'
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY
